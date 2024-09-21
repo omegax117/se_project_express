@@ -1,8 +1,7 @@
 const errorCodes = {
   Server: 500,
   NotFound: 404,
-  Cast: 400,
-  Validation: 400,
+  BadRequest: 400,
 };
 
 const errorMessages = {
@@ -10,6 +9,7 @@ const errorMessages = {
   notFound: "Requested Document not found",
   Cast: "Error casting request",
   Validation: "Error validating request",
+  badRoute: "Unknown route request",
 };
 
 module.exports = { errorCodes, errorMessages };

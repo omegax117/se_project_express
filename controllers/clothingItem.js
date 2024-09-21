@@ -1,5 +1,5 @@
 const clothingItem = require("../models/clothingItem");
-const { errorCodes } = require("../utils/errors");
+const { errorCodes, errorMessages } = require("../utils/errors");
 
 const getItems = (req, res) => {
   clothingItem
@@ -7,7 +7,9 @@ const getItems = (req, res) => {
     .then((items) => res.status(200).send(items))
     .catch((err) => {
       console.log(err);
-      return res.status(errorCodes.Server).send({ message: err.message });
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 
@@ -21,9 +23,13 @@ const createItem = (req, res) => {
     .catch((err) => {
       console.log(err);
       if (err.name === "ValidationError") {
-        return res.status(errorCodes.Validation).send({ message: err.message });
+        return res
+          .status(errorCodes.BadRequest)
+          .send({ message: errorMessages.Validation });
       }
-      return res.status(errorCodes.Server).send({ message: err.message });
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 
@@ -32,15 +38,21 @@ const deleteItem = (req, res) => {
   clothingItem
     .findByIdAndDelete(itemId)
     .orFail()
-    .then(() => res.status(200).send({}))
+    .then(() => res.status(200).send({ message: "Item succesfully deleted" }))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(errorCodes.Cast).send({ message: err.message });
+        return res
+          .status(errorCodes.BadRequest)
+          .send({ message: errorMessages.Cast });
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(errorCodes.NotFound).send({ message: err.message });
+        return res
+          .status(errorCodes.NotFound)
+          .send({ message: errorMessages.notFound });
       }
-      return res.status(errorCodes.Server).send({ message: err.message });
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 
@@ -56,12 +68,18 @@ const likeItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(errorCodes.Cast).send({ message: err.message });
+        return res
+          .status(errorCodes.BadRequest)
+          .send({ message: errorMessages.Cast });
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(errorCodes.NotFound).send({ message: err.message });
+        return res
+          .status(errorCodes.NotFound)
+          .send({ message: errorMessages.notFound });
       }
-      return res.status(errorCodes.Server).send({ message: err.message });
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 
@@ -77,12 +95,18 @@ const dislikeItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res.status(errorCodes.Cast).send({ message: err.message });
+        return res
+          .status(errorCodes.BadRequest)
+          .send({ message: errorMessages.Cast });
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(errorCodes.NotFound).send({ message: err.message });
+        return res
+          .status(errorCodes.NotFound)
+          .send({ message: errorMessages.notFound });
       }
-      return res.status(errorCodes.Server).send({ message: err.message });
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 

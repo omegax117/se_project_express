@@ -35,24 +35,58 @@ const createItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+  const userId = req.user._id;
   clothingItem
-    .findByIdAndDelete(itemId)
+    .findById(itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: "Item succesfully deleted" }))
+    .then((item) => {
+      if (item.owner !== userId) {
+        return res
+          .status(errorCodes.Unauthorized)
+          .send({ message: errorMessages.Unauthorized });
+      }
+    })
     .catch((err) => {
+      if (
+        err.name === "DocumentNotFoundError" ||
+        err.name === "NotFoundError"
+      ) {
+        return res
+          .status(errorCodes.NotFound)
+          .send({ message: errorMessages.notFound });
+      }
       if (err.name === "CastError") {
         return res
           .status(errorCodes.BadRequest)
           .send({ message: errorMessages.Cast });
       }
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
-      }
       return res
         .status(errorCodes.Server)
         .send({ message: errorMessages.Server });
+    });
+  console.log("here");
+  clothingItem
+    .findByIdAndDelete(itemId)
+    .orFail()
+    .then(() => res.status(200).send({ message: "Item succesfully deleted" }))
+    .catch((err) => {
+      return err;
+      // if (err.name === "CastError") {
+      //   res.status(errorCodes.BadRequest).send({ message: errorMessages.Cast });
+      //   return;
+      // }
+      // if (
+      //   err.name === "DocumentNotFoundError" ||
+      //   err.name === "NotFoundError"
+      // ) {
+      //   return res
+      //     .status(errorCodes.NotFound)
+      //     .send({ message: errorMessages.notFound });
+      // }
+      // return res
+      //   .status(errorCodes.Server)
+      //   .send({ message: errorMessages.Server }); This is crashing my code... unneccesary? I suppose
+      // Leaving for future reference
     });
 };
 

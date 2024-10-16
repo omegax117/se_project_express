@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const User = require("./user");
 
 const clothingItemSchema = new mongoose.Schema({
   name: { type: String, required: true, minlength: 2, maxlength: 30 },
@@ -12,7 +13,7 @@ const clothingItemSchema = new mongoose.Schema({
       message: "Link is not Valid",
     },
   },
-  owner: { type: mongoose.ObjectId, required: true },
+  owner: { type: mongoose.ObjectId, ref: User, required: true },
   likes: [
     {
       type: mongoose.Schema.Types.ObjectId,

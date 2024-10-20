@@ -7,7 +7,7 @@ function auth(req, res, next) {
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
     res
-      .status(errorCodes.BadRequest)
+      .status(errorCodes.WrongLogin)
       .send({ message: errorMessages.Unauthorized });
   }
 
@@ -20,7 +20,7 @@ function auth(req, res, next) {
   } catch (err) {
     console.error(err);
     return res
-      .status(errorCodes.BadRequest)
+      .status(errorCodes.WrongLogin)
       .send({ message: errorMessages.Unauthorized });
   }
 

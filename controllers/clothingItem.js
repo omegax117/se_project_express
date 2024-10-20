@@ -45,28 +45,27 @@ const deleteItem = (req, res) => {
           .status(errorCodes.Unauthorized)
           .send({ message: errorMessages.Unauthorized });
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
-    });
-  clothingItem
-    .findByIdAndDelete(itemId)
-    .orFail()
-    .then(() => res.status(200).send({ message: "Item succesfully deleted" }))
-    .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
-      }
-      if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Cast });
-      }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      return clothingItem
+        .findByIdAndDelete(itemId)
+        .orFail()
+        .then(() =>
+          res.status(200).send({ message: "Item succesfully deleted" })
+        )
+        .catch((err) => {
+          if (err.name === "DocumentNotFoundError") {
+            return res
+              .status(errorCodes.NotFound)
+              .send({ message: errorMessages.notFound });
+          }
+          if (err.name === "CastError") {
+            return res
+              .status(errorCodes.BadRequest)
+              .send({ message: errorMessages.Cast });
+          }
+          return res
+            .status(errorCodes.Server)
+            .send({ message: errorMessages.Server });
+        });
     });
 };
 

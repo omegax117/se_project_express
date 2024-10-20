@@ -4,6 +4,7 @@ const errorCodes = {
   BadRequest: 400,
   DuplicateEmail: 409,
   Unauthorized: 403,
+  WrongLogin: 401,
 };
 
 const errorMessages = {

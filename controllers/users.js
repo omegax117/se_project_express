@@ -79,12 +79,12 @@ const login = (req, res) => {
     .catch((err) => {
       if (err.message === errorMessages.BadCredentials) {
         return res
-          .status(errorCodes.BadRequest)
+          .status(errorCodes.WrongLogin)
           .send(errorMessages.BadCredentials);
       }
       if (err.message === "Incorrect email or password") {
         return res
-          .status(errorCodes.BadRequest)
+          .status(errorCodes.WrongLogin)
           .send({ message: errorMessages.BadCredentials });
       }
       console.log(err);

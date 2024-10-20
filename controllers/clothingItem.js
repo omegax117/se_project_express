@@ -50,22 +50,22 @@ const deleteItem = (req, res) => {
         .orFail()
         .then(() =>
           res.status(200).send({ message: "Item succesfully deleted" })
-        )
-        .catch((err) => {
-          if (err.name === "DocumentNotFoundError") {
-            return res
-              .status(errorCodes.NotFound)
-              .send({ message: errorMessages.notFound });
-          }
-          if (err.name === "CastError") {
-            return res
-              .status(errorCodes.BadRequest)
-              .send({ message: errorMessages.Cast });
-          }
-          return res
-            .status(errorCodes.Server)
-            .send({ message: errorMessages.Server });
-        });
+        );
+    })
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        return res
+          .status(errorCodes.NotFound)
+          .send({ message: errorMessages.notFound });
+      }
+      if (err.name === "CastError") {
+        return res
+          .status(errorCodes.BadRequest)
+          .send({ message: errorMessages.Cast });
+      }
+      return res
+        .status(errorCodes.Server)
+        .send({ message: errorMessages.Server });
     });
 };
 

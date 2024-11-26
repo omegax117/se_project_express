@@ -2,9 +2,14 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
-const { errorCodes, errorMessages } = require("../utils/errors");
+const { errorMessages } = require("../utils/errors");
+const {
+  BadRequestError,
+  ConflictError,
+  UnathorizedError,
+} = require("../middlewares/error-handler");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, email, password, avatar } = req.body;
   User.findOne({ email })
     .then((user) => {
@@ -21,52 +26,36 @@ const createUser = (req, res) => {
       )
     )
     .catch((err) => {
-      console.log(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Validation });
+        next(new BadRequestError((err.message = errorMessages.Validation)));
       }
       if (err.code === 11000) {
-        return res
-          .status(errorCodes.DuplicateEmail)
-          .send({ message: errorMessages.DuplicateEmail });
+        next(new ConflictError((err.message = errorMessages.DuplicateEmail)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail()
     .then((user) => res.send(user))
     .catch((err) => {
-      console.log(err);
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
+        next(new BadRequestError((err.message = errorMessages.notFound)));
       }
       if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Cast });
+        next(new BadRequestError((err.message = errorMessages.Cast)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res
-      .status(errorCodes.BadRequest)
-      .send({ message: errorMessages.BadCredentials });
+    next(new UnathorizedError((err.message = errorMessages.BadCredentials)));
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -78,19 +67,14 @@ const login = (req, res) => {
     .then((token) => res.status(200).send({ token }))
     .catch((err) => {
       if (err.message === errorMessages.BadCredentials) {
-        return res
-          .status(errorCodes.WrongLogin)
-          .send(errorMessages.BadCredentials);
+        next(new BadRequestError((err.message = errorMessages.BadCredentials)));
       }
       if (err.message === "Incorrect email or password") {
-        return res
-          .status(errorCodes.WrongLogin)
-          .send({ message: errorMessages.BadCredentials });
+        next(
+          new UnathorizedError((err.message = errorMessages.BadCredentials))
+        );
       }
-      console.log(err);
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
@@ -106,18 +90,12 @@ const updateUser = (req, res) => {
     .then(() => res.status(200).send({ name, avatar }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Validation });
+        next(new BadRequestError((err.message = errorMessages.Validation)));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
+        next(new BadRequestError((err.message = errorMessages.notFound)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 

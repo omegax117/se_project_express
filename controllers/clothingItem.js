@@ -1,19 +1,21 @@
 const clothingItem = require("../models/clothingItem");
-const { errorCodes, errorMessages } = require("../utils/errors");
+const { errorMessages } = require("../utils/errors");
+const {
+  NotFoundError,
+  BadRequestError,
+  ForbiddenError,
+} = require("../middlewares/error-handler");
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   clothingItem
     .find({})
     .then((items) => res.status(200).send(items))
     .catch((err) => {
-      console.log(err);
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
   console.log(req);
@@ -21,19 +23,14 @@ const createItem = (req, res) => {
     .create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send({ data: item }))
     .catch((err) => {
-      console.log(err);
       if (err.name === "ValidationError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Validation });
+        next(new BadRequestError((err.message = errorMessages.Validation)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
   clothingItem
@@ -41,9 +38,7 @@ const deleteItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== userId) {
-        return res
-          .status(errorCodes.Unauthorized)
-          .send({ message: errorMessages.Unauthorized });
+        next(new ForbiddenError((err.message = errorMessages.Unauthorized)));
       }
       return clothingItem
         .findByIdAndDelete(itemId)
@@ -54,22 +49,16 @@ const deleteItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
+        next(new NotFoundError((err.message = errorMessages.notFound)));
       }
       if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Cast });
+        next(new BadRequestError((err.message = errorMessages.Cast)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
@@ -81,22 +70,16 @@ const likeItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Cast });
+        next(new BadRequestError((err.message = errorMessages.Cast)));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
+        next(new NotFoundError((err.message = errorMessages.notFound)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
   clothingItem
     .findByIdAndUpdate(
@@ -108,18 +91,12 @@ const dislikeItem = (req, res) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        return res
-          .status(errorCodes.BadRequest)
-          .send({ message: errorMessages.Cast });
+        next(new BadRequestError((err.message = errorMessages.Cast)));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(errorCodes.NotFound)
-          .send({ message: errorMessages.notFound });
+        next(new NotFoundError((err.message = errorMessages.notFound)));
       }
-      return res
-        .status(errorCodes.Server)
-        .send({ message: errorMessages.Server });
+      next(err);
     });
 };
 

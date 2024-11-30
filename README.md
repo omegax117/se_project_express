@@ -14,4 +14,9 @@ This project runs an express framework for it's functionality and uses ESlint to
 
 ### Testing
 
-Before committing your code, make sure you edit the file `sprint.txt` in the root folder. The file `sprint.txt` should contain the number of the sprint you're currently working on. For ex. 12
+This sprint is hosted on
+
+https://www.lastsprint.crabdance.com
+or https://lastsprint.crabdance.com
+
+The api functionality is handled at https://api.lastsprint.crabdance.com

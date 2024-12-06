@@ -1,10 +1,8 @@
 const clothingItem = require("../models/clothingItem");
 const { errorMessages } = require("../utils/errors");
-const {
-  NotFoundError,
-  BadRequestError,
-  ForbiddenError,
-} = require("../middlewares/error-handler");
+const { NotFoundError } = require("../middlewares/NotFoundError");
+const { BadRequestError } = require("../middlewares/BadRequestError");
+const { ForbiddenError } = require("../middlewares/ForbiddenError");
 
 const getItems = (req, res, next) => {
   clothingItem
@@ -24,7 +22,7 @@ const createItem = (req, res, next) => {
     .then((item) => res.status(201).send({ data: item }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError((err.message = errorMessages.Validation)));
+        next(new BadRequestError(errorMessages.Validation));
       }
       next(err);
     });
@@ -38,7 +36,7 @@ const deleteItem = (req, res, next) => {
     .orFail()
     .then((item) => {
       if (String(item.owner) !== userId) {
-        next(new ForbiddenError((err.message = errorMessages.Unauthorized)));
+        return next(new ForbiddenError(errorMessages.Unauthorized));
       }
       return clothingItem
         .findByIdAndDelete(itemId)
@@ -49,10 +47,10 @@ const deleteItem = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError((err.message = errorMessages.notFound)));
+        next(new NotFoundError(errorMessages.notFound));
       }
       if (err.name === "CastError") {
-        next(new BadRequestError((err.message = errorMessages.Cast)));
+        next(new BadRequestError(errorMessages.Cast));
       }
       next(err);
     });
@@ -70,10 +68,10 @@ const likeItem = (req, res, next) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError((err.message = errorMessages.Cast)));
+        next(new BadRequestError(errorMessages.Cast));
       }
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError((err.message = errorMessages.notFound)));
+        next(new NotFoundError(errorMessages.notFound));
       }
       next(err);
     });
@@ -91,10 +89,10 @@ const dislikeItem = (req, res, next) => {
     .then((item) => res.status(200).send(item))
     .catch((err) => {
       if (err.name === "CastError") {
-        next(new BadRequestError((err.message = errorMessages.Cast)));
+        next(new BadRequestError(errorMessages.Cast));
       }
       if (err.name === "DocumentNotFoundError") {
-        next(new NotFoundError((err.message = errorMessages.notFound)));
+        next(new NotFoundError(errorMessages.notFound));
       }
       next(err);
     });

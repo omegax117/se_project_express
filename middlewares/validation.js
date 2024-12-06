@@ -18,8 +18,8 @@ const validateClothingItem = celebrate({
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'The "imageUrl" field must be a valid url',
-      "string.empty": 'The "imageUrl" field must be filled in',
     }),
+    weather: Joi.string().required().valid("hot", "warm", "cold"),
   }),
 });
 
@@ -33,7 +33,6 @@ const validateNewUser = celebrate({
     avatar: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "avatar" field must be filled in',
       "string.uri": 'The "avatar" field must be a valid url',
-      "string.empty": 'The "avatar" field must be filled in',
     }),
     email: Joi.string().required().email().messages({
       "string.base": "You must enter a valid email address",
@@ -79,7 +78,6 @@ const validateUserUpdate = celebrate({
     avatar: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'The "imageUrl" field must be a valid url',
-      "string.empty": 'The "avatar" field must be filled in',
     }),
   }),
 });

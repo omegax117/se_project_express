@@ -3,11 +3,10 @@ const bcrypt = require("bcrypt");
 const { JWT_SECRET } = require("../utils/config");
 const User = require("../models/user");
 const { errorMessages } = require("../utils/errors");
-const {
-  BadRequestError,
-  ConflictError,
-  UnathorizedError,
-} = require("../middlewares/error-handler");
+const { ConflictError } = require("../middlewares/ConflictError");
+const { BadRequestError } = require("../middlewares/BadRequestError");
+const { UnathorizedError } = require("../middlewares/UnathorizedError");
+const { NotFoundError } = require("../middlewares/NotFoundError");
 
 const createUser = (req, res, next) => {
   const { name, email, password, avatar } = req.body;
@@ -27,10 +26,10 @@ const createUser = (req, res, next) => {
     )
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError((err.message = errorMessages.Validation)));
+        next(new BadRequestError(errorMessages.Validation));
       }
       if (err.code === 11000) {
-        next(new ConflictError((err.message = errorMessages.DuplicateEmail)));
+        next(new ConflictError(errorMessages.DuplicateEmail));
       }
       next(err);
     });
@@ -43,10 +42,10 @@ const getCurrentUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
-        next(new BadRequestError((err.message = errorMessages.notFound)));
+        next(new BadRequestError(errorMessages.notFound));
       }
       if (err.name === "CastError") {
-        next(new BadRequestError((err.message = errorMessages.Cast)));
+        next(new BadRequestError(errorMessages.Cast));
       }
       next(err);
     });
@@ -55,7 +54,7 @@ const getCurrentUser = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    next(new UnathorizedError((err.message = errorMessages.BadCredentials)));
+    next(new BadRequestError(errorMessages.BadCredentials));
   }
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -67,18 +66,16 @@ const login = (req, res, next) => {
     .then((token) => res.status(200).send({ token }))
     .catch((err) => {
       if (err.message === errorMessages.BadCredentials) {
-        next(new BadRequestError((err.message = errorMessages.BadCredentials)));
+        next(new BadRequestError(errorMessages.BadCredentials));
       }
       if (err.message === "Incorrect email or password") {
-        next(
-          new UnathorizedError((err.message = errorMessages.BadCredentials))
-        );
+        next(new UnathorizedError(errorMessages.BadCredentials));
       }
       next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -87,13 +84,13 @@ const updateUser = (req, res) => {
     { new: true, runValidators: true }
   )
     .orFail()
-    .then(() => res.status(200).send({ name, avatar }))
+    .then(() => res.status(200).send({ name, avatar, next }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        next(new BadRequestError((err.message = errorMessages.Validation)));
+        next(new BadRequestError(errorMessages.Validation));
       }
       if (err.name === "DocumentNotFoundError") {
-        next(new BadRequestError((err.message = errorMessages.notFound)));
+        next(new NotFoundError(errorMessages.notFound));
       }
       next(err);
     });
